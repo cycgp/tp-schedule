@@ -1,21 +1,56 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import Calendar from './components/Calendar';
+import EmployeeList from './components/EmployeeList';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import { Tabs, Tab } from 'material-ui/Tabs';
+import MapsPersonPin from 'material-ui/svg-icons/maps/person-pin';
+import Schedule from 'material-ui/svg-icons/action/schedule';
+
+const styles = {
+	headline: {
+		fontSize: 24,
+		paddingTop: 16,
+		marginBottom: 12,
+		fontWeight: 400
+	}
+};
 
 class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-      </div>
-    );
-  }
+	constructor(props) {
+		super(props);
+		this.state = {
+			value: 'a'
+		};
+	}
+
+	handleChange = value => {
+		this.setState({
+			value: value
+		});
+	};
+
+	render() {
+		return (
+			<div className="App">
+				<MuiThemeProvider>
+					<Tabs value={this.state.value} onChange={this.handleChange}>
+						<Tab icon={<Schedule />} label="行事曆" value="a">
+							<Calendar />
+						</Tab>
+						<Tab
+							icon={<MapsPersonPin />}
+							label="員工清單"
+							value="b"
+						>
+							<div>
+								<EmployeeList />
+							</div>
+						</Tab>
+					</Tabs>
+				</MuiThemeProvider>
+			</div>
+		);
+	}
 }
 
 export default App;
