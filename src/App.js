@@ -6,15 +6,6 @@ import { Tabs, Tab } from 'material-ui/Tabs';
 import MapsPersonPin from 'material-ui/svg-icons/maps/person-pin';
 import Schedule from 'material-ui/svg-icons/action/schedule';
 
-const styles = {
-	headline: {
-		fontSize: 24,
-		paddingTop: 16,
-		marginBottom: 12,
-		fontWeight: 400
-	}
-};
-
 class App extends Component {
 	constructor(props) {
 		super(props);

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { Component } from 'react';
 import BigCalendar from 'react-big-calendar';
 import moment from 'moment';
 import styled from 'styled-components';
 import events from '../event';
 import './Calendar.css';
+import AddEventDialog from './AddEventDialog';
 
 const StyledDiv = styled.div`
 	height: 800px;
@@ -49,28 +50,54 @@ const formats = {
 	agendaDateFormat: 'MM/DD 星期dd'
 };
 
-let Calendar = () => (
-	<StyledDiv>
-		<BigCalendar
-			selectable
-			formats={formats}
-			timeslots={2}
-			step={60}
-			messages={messages}
-			events={events}
-			defaultView="month"
-			scrollToTime={new Date(1970, 1, 1, 6)}
-			defaultDate={new Date(2015, 3, 12)}
-			onSelectEvent={event => alert(event.title)}
-			onSelectSlot={slotInfo =>
-				alert(
-					`selected slot: \n\nstart ${slotInfo.start.toLocaleString()} ` +
-						`\nend: ${slotInfo.end.toLocaleString()}` +
-						`\naction: ${slotInfo.action}`
-				)
-			}
-		/>
-	</StyledDiv>
-);
+class Calendar extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			addEventDialog: false,
+			addEventYear: 0,
+			addEventMonth: 0,
+			addEventDate: 0
+		};
+	}
+
+	handleOnSelectSlot = slotInfo => {
+		var slotYear = new Date(slotInfo.slots).getFullYear();
+		var slotMonth = new Date(slotInfo.slots).getMonth();
+		var slotDate = new Date(slotInfo.slots).getDate();
+		this.setState({
+			addEventDialog: true,
+			addEventYear: slotYear,
+			addEventMonth: slotMonth,
+			addEventDate: slotDate
+		});
+	};
+
+	render() {
+		return (
+			<StyledDiv>
+				<BigCalendar
+					selectable
+					formats={formats}
+					timeslots={2}
+					step={60}
+					messages={messages}
+					events={events}
+					defaultView="month"
+					scrollToTime={new Date(1970, 1, 1, 6)}
+					defaultDate={new Date(2015, 3, 12)}
+					onSelectEvent={event => alert(event.title)}
+					onSelectSlot={slotInfo => this.handleOnSelectSlot(slotInfo)}
+				/>
+				<AddEventDialog
+					open={this.state.addEventDialog}
+					year={this.state.addEventYear}
+					month={this.state.addEventMonth}
+					date={this.state.addEventDate}
+				/>
+			</StyledDiv>
+		);
+	}
+}
 
 export default Calendar;
