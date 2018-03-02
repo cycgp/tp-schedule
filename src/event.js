@@ -14,13 +14,6 @@ export default [
 	},
 
 	{
-		id: 2015411850521930881,
-		title: '行程名稱',
-		start: 'Fri Mar 02 2018 18:50:52 GMT+0800 (CST)',
-		end: 'Fri Mar 02 2018 19:50:52 GMT+0800 (CST)'
-	},
-
-	{
 		id: 3,
 		title: 'DTS ENDS',
 		start: new Date(2016, 10, 6, 0, 0, 0),

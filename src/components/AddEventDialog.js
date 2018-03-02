@@ -63,8 +63,16 @@ export default class AddEventDialog extends React.Component {
 				'date',
 				this.state.defaultDate.toLocaleDateString()
 			);
-			formData.append('startTime', this.state.startTime);
-			formData.append('endTime', this.state.endTime);
+			formData.append('start', this.state.startTime);
+			formData.append('end', this.state.endTime);
+			formData.append(
+				'startTime',
+				this.state.startTime.toLocaleString('en-GB')
+			);
+			formData.append(
+				'endTime',
+				this.state.endTime.toLocaleString('en-GB')
+			);
 			formData.append('timeDisabled', this.state.timeDisabled);
 			formData.append('isRoutine', this.state.isRoutine);
 			formData.append('employees', this.state.employees);
@@ -85,6 +93,24 @@ export default class AddEventDialog extends React.Component {
 				.catch(function(err) {
 					console.log('Fetch Error :-S', err);
 				});
+
+			this.setState({
+				ready: false,
+				timeReady: false,
+				open: false,
+				defaultDate: new Date(2018, 1, 1),
+				startTime: '',
+				endTime: '',
+				errorTextTitle: '',
+				errorTextLocation: '',
+				errorTextStart: '',
+				errorTextEnd: '',
+				timeDisabled: false,
+				isRoutine: false,
+				employees: []
+			});
+
+			this.props.close(this.state.defaultDate);
 		}
 	}
 
@@ -104,6 +130,7 @@ export default class AddEventDialog extends React.Component {
 			isRoutine: false,
 			employees: []
 		});
+		this.props.close(this.state.defaultDate);
 	};
 
 	handleSubmit = () => {
@@ -203,12 +230,14 @@ export default class AddEventDialog extends React.Component {
 		this.setState({
 			startTime: time
 		});
+		console.log(this.state.startTime);
 	};
 
 	handleEndTime = time => {
 		this.setState({
 			endTime: time
 		});
+		console.log(this.state.endTime);
 	};
 
 	getEmployees = val => {

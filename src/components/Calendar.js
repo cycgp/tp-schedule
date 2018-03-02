@@ -4,6 +4,7 @@ import moment from 'moment';
 import styled from 'styled-components';
 import './Calendar.css';
 import AddEventDialog from './AddEventDialog';
+import events from '../event';
 
 const StyledDiv = styled.div`
 	height: 800px;
@@ -64,33 +65,7 @@ class Calendar extends Component {
 	}
 
 	componentDidMount() {
-		this.handleNavigate(new Date(2015, 3, 12));
-		var From_date = new Date();
-		var To_date = new Date();
-
-		From_date.setMonth(From_date.getMonth() - 1);
-		To_date.setMonth(To_date.getMonth() + 1);
-
-		var formData = new FormData();
-		formData.append('From_date', From_date.toLocaleDateString());
-		formData.append('To_date', To_date.toLocaleDateString());
-
-		let url = 'http://localhost:5000/get_event';
-		let init = {
-			method: 'POST',
-			body: formData
-		};
-		fetch(url, init)
-			.then(response => response.json())
-			.then(json => {
-				console.log(json);
-				this.setState({
-					events: json
-				});
-			})
-			.catch(function(err) {
-				console.log('Fetch Error :', err);
-			});
+		this.handleNavigate(new Date());
 	}
 
 	handleOnSelectSlot = slotInfo => {
@@ -106,10 +81,52 @@ class Calendar extends Component {
 	};
 
 	handleNavigate = date => {
-		console.log(this.state.events);
 		this.setState({
 			navigateDate: date
 		});
+
+		var From_date = new Date(date.getTime());
+		var To_date = new Date(date.getTime());
+
+		From_date.setMonth(date.getMonth() - 1);
+		To_date.setMonth(To_date.getMonth() + 1);
+
+		var formData = new FormData();
+		formData.append('From_date', From_date.toLocaleDateString());
+		formData.append('To_date', To_date.toLocaleDateString());
+
+		let url = 'http://localhost:5000/get_event';
+		let init = {
+			method: 'POST',
+			body: formData
+		};
+		fetch(url, init)
+			.then(response => response.json())
+			.then(json => {
+				for (var i = 0; i < json.length; i++) {
+					json[i]['start'] = new Date(Date.parse(json[i]['start']));
+					json[i]['end'] = new Date(Date.parse(json[i]['end']));
+				}
+				this.setState({
+					events: json
+				});
+			})
+			.catch(function(err) {
+				console.log('Fetch Error :', err);
+			});
+	};
+
+	close = value => {
+		if (value) {
+			this.setState({
+				addEventDialog: false
+			});
+			this.handleNavigate(value);
+		} else {
+			this.setState({
+				addEventDialog: false
+			});
+		}
 	};
 
 	render() {
@@ -124,12 +141,13 @@ class Calendar extends Component {
 					events={this.state.events}
 					defaultView="month"
 					scrollToTime={new Date(1970, 1, 1, 6)}
-					defaultDate={new Date(2015, 3, 12)}
+					defaultDate={new Date()}
 					onNavigate={date => this.handleNavigate(date)}
 					onSelectEvent={event => alert(event.id)}
 					onSelectSlot={slotInfo => this.handleOnSelectSlot(slotInfo)}
 				/>
 				<AddEventDialog
+					close={this.close}
 					open={this.state.addEventDialog}
 					year={this.state.addEventYear}
 					month={this.state.addEventMonth}
