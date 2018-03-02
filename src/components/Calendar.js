@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import BigCalendar from 'react-big-calendar';
 import moment from 'moment';
 import styled from 'styled-components';
-import events from '../event';
 import './Calendar.css';
 import AddEventDialog from './AddEventDialog';
 
@@ -54,11 +53,44 @@ class Calendar extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			date: new Date(),
+			navigateDate: new Date(),
+			events: [],
 			addEventDialog: false,
 			addEventYear: 0,
 			addEventMonth: 0,
 			addEventDate: 0
 		};
+	}
+
+	componentDidMount() {
+		this.handleNavigate(new Date(2015, 3, 12));
+		var From_date = new Date();
+		var To_date = new Date();
+
+		From_date.setMonth(From_date.getMonth() - 1);
+		To_date.setMonth(To_date.getMonth() + 1);
+
+		var formData = new FormData();
+		formData.append('From_date', From_date.toLocaleDateString());
+		formData.append('To_date', To_date.toLocaleDateString());
+
+		let url = 'http://localhost:5000/get_event';
+		let init = {
+			method: 'POST',
+			body: formData
+		};
+		fetch(url, init)
+			.then(response => response.json())
+			.then(json => {
+				console.log(json);
+				this.setState({
+					events: json
+				});
+			})
+			.catch(function(err) {
+				console.log('Fetch Error :', err);
+			});
 	}
 
 	handleOnSelectSlot = slotInfo => {
@@ -73,6 +105,13 @@ class Calendar extends Component {
 		});
 	};
 
+	handleNavigate = date => {
+		console.log(this.state.events);
+		this.setState({
+			navigateDate: date
+		});
+	};
+
 	render() {
 		return (
 			<StyledDiv>
@@ -82,11 +121,12 @@ class Calendar extends Component {
 					timeslots={2}
 					step={60}
 					messages={messages}
-					events={events}
+					events={this.state.events}
 					defaultView="month"
 					scrollToTime={new Date(1970, 1, 1, 6)}
 					defaultDate={new Date(2015, 3, 12)}
-					onSelectEvent={event => alert(event.title)}
+					onNavigate={date => this.handleNavigate(date)}
+					onSelectEvent={event => alert(event.id)}
 					onSelectSlot={slotInfo => this.handleOnSelectSlot(slotInfo)}
 				/>
 				<AddEventDialog

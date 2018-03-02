@@ -42,20 +42,33 @@ export default class AddEventDialog extends React.Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		this.setState({
-			open: true,
-			defaultDate: new Date(
-				nextProps.year,
-				nextProps.month,
-				nextProps.date
-			)
-		});
+		if (nextProps.open === true) {
+			this.setState({
+				open: true,
+				defaultDate: new Date(
+					nextProps.year,
+					nextProps.month,
+					nextProps.date
+				)
+			});
+		}
 	}
 
 	componentDidUpdate() {
 		if (this.state.ready && this.state.timeReady) {
-			console.log('QQ');
-			var data = new FormData();
+			var formData = new FormData();
+			formData.append('title', this.refs.title.getValue());
+			formData.append('location', this.refs.location.getValue());
+			formData.append(
+				'date',
+				this.state.defaultDate.toLocaleDateString()
+			);
+			formData.append('startTime', this.state.startTime);
+			formData.append('endTime', this.state.endTime);
+			formData.append('timeDisabled', this.state.timeDisabled);
+			formData.append('isRoutine', this.state.isRoutine);
+			formData.append('employees', this.state.employees);
+			formData.append('note', this.refs.note.getValue());
 
 			let url = 'http://localhost:5000/add_event';
 			let init = {
@@ -64,13 +77,11 @@ export default class AddEventDialog extends React.Component {
 					'cache-control': 'no-cache'
 				},
 				mode: 'no-cors',
-				body: JSON.stringify(data)
+				body: formData
 			};
 
 			fetch(url, init)
-				.then(function(response) {
-					return response.blob();
-				})
+				.then(response => response.blob())
 				.catch(function(err) {
 					console.log('Fetch Error :-S', err);
 				});
@@ -102,9 +113,6 @@ export default class AddEventDialog extends React.Component {
 		var startTime = this.state.startTime;
 		var endTime = this.state.endTime;
 		var timeDisabled = this.state.timeDisabled;
-		var isRoutine = this.state.isRoutine;
-		var employees = this.state.employees;
-		var note = this.refs.note.getValue();
 
 		if (timeDisabled) {
 			this.setState({
@@ -160,14 +168,21 @@ export default class AddEventDialog extends React.Component {
 		}
 	};
 
+	handleDate = date => {
+		this.setState({
+			defaultDate: date
+		});
+	};
 	handleTimeDisabledToggle = isInputChecked => {
 		if (isInputChecked) {
 			this.setState({
-				timeDisabled: true
+				timeDisabled: true,
+				ready: false
 			});
 		} else {
 			this.setState({
-				timeDisabled: false
+				timeDisabled: false,
+				ready: false
 			});
 		}
 	};
@@ -197,7 +212,9 @@ export default class AddEventDialog extends React.Component {
 	};
 
 	getEmployees = val => {
-		console.log(val);
+		this.setState({
+			employees: val
+		});
 	};
 	render() {
 		const actions = [
@@ -237,6 +254,7 @@ export default class AddEventDialog extends React.Component {
 				<DatePicker
 					hintText="選擇日期"
 					defaultDate={this.state.defaultDate}
+					onChange={(undefine, date) => this.handleDate(date)}
 				/>
 				<Toggle
 					label="整日行程"
@@ -259,7 +277,7 @@ export default class AddEventDialog extends React.Component {
 					style={styles.timePicker}
 					hintText="選擇開始時間"
 					minutesStep={10}
-					onChange={time => this.handleStartTime(time)}
+					onChange={(undefine, time) => this.handleStartTime(time)}
 					errorText={this.state.errorTextStart}
 					disabled={this.state.timeDisabled}
 				/>
@@ -268,7 +286,7 @@ export default class AddEventDialog extends React.Component {
 					style={styles.timePicker}
 					hintText="選擇結束時間"
 					minutesStep={10}
-					onChange={time => this.handleEndTime(time)}
+					onChange={(undefine, time) => this.handleEndTime(time)}
 					errorText={this.state.errorTextEnd}
 					disabled={this.state.timeDisabled}
 				/>

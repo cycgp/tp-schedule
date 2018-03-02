@@ -14,10 +14,10 @@ export default [
 	},
 
 	{
-		id: 2,
-		title: 'DTS STARTS',
-		start: new Date(2016, 2, 13, 0, 0, 0),
-		end: new Date(2016, 2, 20, 0, 0, 0)
+		id: 2015411850521930881,
+		title: '行程名稱',
+		start: 'Fri Mar 02 2018 18:50:52 GMT+0800 (CST)',
+		end: 'Fri Mar 02 2018 19:50:52 GMT+0800 (CST)'
 	},
 
 	{
