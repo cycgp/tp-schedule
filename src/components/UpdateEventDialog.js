@@ -6,6 +6,9 @@ import TimePicker from 'material-ui/TimePicker';
 import TextField from 'material-ui/TextField';
 import Toggle from 'material-ui/Toggle';
 import EmployeeSelectField from './EmployeeSelectField';
+import FloatingActionButton from 'material-ui/FloatingActionButton';
+import Create from 'material-ui/svg-icons/content/create';
+import './EventDialog.css';
 
 const styles = {
 	toggle: {
@@ -21,20 +24,28 @@ const styles = {
 	}
 };
 
-export default class AddEventDialog extends React.Component {
+export default class UpdateEventDialog extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			ready: false,
 			timeReady: false,
 			open: false,
+			dialogTitle: '行程資訊',
+			labelText: '完成',
+			visible: false,
 			defaultDate: new Date(2018, 1, 1),
-			startTime: '',
-			endTime: '',
+			editable: true,
+			id: '',
+			startTime: new Date(),
+			endTime: new Date(),
 			errorTextTitle: '',
 			errorTextLocation: '',
 			errorTextStart: '',
 			errorTextEnd: '',
+			title: '',
+			location: '',
+			note: '',
 			timeDisabled: false,
 			isRoutine: false,
 			employees: []
@@ -49,7 +60,15 @@ export default class AddEventDialog extends React.Component {
 					nextProps.year,
 					nextProps.month,
 					nextProps.date
-				)
+				),
+				id: nextProps.id,
+				startTime: nextProps.start,
+				endTime: nextProps.end,
+				title: nextProps.title,
+				location: nextProps.location,
+				note: nextProps.note,
+				timeDisabled: nextProps.allDay,
+				isRoutine: nextProps.isRoutine
 			});
 		}
 	}
@@ -57,6 +76,7 @@ export default class AddEventDialog extends React.Component {
 	componentDidUpdate() {
 		if (this.state.ready && this.state.timeReady) {
 			var formData = new FormData();
+			formData.append('idevents', this.state.id);
 			formData.append('title', this.refs.title.getValue());
 			formData.append('location', this.refs.location.getValue());
 			formData.append(
@@ -78,7 +98,7 @@ export default class AddEventDialog extends React.Component {
 			formData.append('employees', this.state.employees);
 			formData.append('note', this.refs.note.getValue());
 
-			let url = 'http://localhost:5000/add_event';
+			let url = 'http://localhost:5000/update_event';
 			let init = {
 				method: 'POST',
 				headers: {
@@ -98,13 +118,21 @@ export default class AddEventDialog extends React.Component {
 				ready: false,
 				timeReady: false,
 				open: false,
+				dialogTitle: '行程資訊',
+				labelText: '完成',
+				visible: false,
 				defaultDate: new Date(2018, 1, 1),
-				startTime: '',
-				endTime: '',
+				editable: true,
+				id: '',
+				startTime: new Date(),
+				endTime: new Date(),
 				errorTextTitle: '',
 				errorTextLocation: '',
 				errorTextStart: '',
 				errorTextEnd: '',
+				title: '',
+				location: '',
+				note: '',
 				timeDisabled: false,
 				isRoutine: false,
 				employees: []
@@ -119,13 +147,21 @@ export default class AddEventDialog extends React.Component {
 			ready: false,
 			timeReady: false,
 			open: false,
+			dialogTitle: '行程資訊',
+			labelText: '完成',
+			visible: false,
 			defaultDate: new Date(2018, 1, 1),
-			startTime: '',
-			endTime: '',
+			editable: true,
+			id: '',
+			startTime: new Date(),
+			endTime: new Date(),
 			errorTextTitle: '',
 			errorTextLocation: '',
 			errorTextStart: '',
 			errorTextEnd: '',
+			title: '',
+			location: '',
+			note: '',
 			timeDisabled: false,
 			isRoutine: false,
 			employees: []
@@ -200,10 +236,13 @@ export default class AddEventDialog extends React.Component {
 			defaultDate: date
 		});
 	};
+
 	handleTimeDisabledToggle = isInputChecked => {
 		if (isInputChecked) {
 			this.setState({
 				timeDisabled: true,
+				startTime: null,
+				endTime: null,
 				ready: false
 			});
 		} else {
@@ -239,6 +278,15 @@ export default class AddEventDialog extends React.Component {
 		console.log(this.state.endTime);
 	};
 
+	handleEditable = () => {
+		this.setState({
+			editable: false,
+			dialogTitle: '更新行程',
+			labelText: '取消',
+			visible: true
+		});
+	};
+
 	getEmployees = val => {
 		this.setState({
 			employees: val
@@ -247,40 +295,60 @@ export default class AddEventDialog extends React.Component {
 	render() {
 		const actions = [
 			<FlatButton
-				label="取消"
+				label={this.state.labelText}
 				primary={true}
 				onClick={this.handleClose}
 			/>,
 			<FlatButton
 				label="送出"
 				primary={true}
-				keyboardFocused={true}
 				onClick={this.handleSubmit}
+				style={
+					this.state.visible
+						? { display: 'inline-block' }
+						: { display: 'none' }
+				}
 			/>
 		];
 
 		return (
 			<Dialog
-				title="建立新行程"
+				title={this.state.dialogTitle}
 				actions={actions}
 				modal={true}
 				open={this.state.open}
 				onRequestClose={this.handleClose}
 			>
+				<FloatingActionButton
+					backgroundColor={'#757575'}
+					mini={true}
+					className="editButton"
+					onClick={this.handleEditable}
+				>
+					<Create />
+				</FloatingActionButton>
 				<TextField
 					ref="title"
 					hintText="行程名稱"
+					inputStyle={{ color: '#000' }}
+					disabled={this.state.editable}
+					defaultValue={this.state.title}
 					fullWidth={true}
 					errorText={this.state.errorTextTitle}
 				/>
 				<TextField
 					ref="location"
 					hintText="地點"
+					inputStyle={{ color: '#000' }}
+					disabled={this.state.editable}
+					defaultValue={this.state.location}
 					fullWidth={true}
 					errorText={this.state.errorTextLocation}
 				/>
 				<DatePicker
 					hintText="選擇日期"
+					inputStyle={{ color: '#000' }}
+					disabled={this.state.editable}
 					defaultDate={this.state.defaultDate}
 					onChange={(undefine, date) => this.handleDate(date)}
 				/>
@@ -288,6 +356,8 @@ export default class AddEventDialog extends React.Component {
 					label="整日行程"
 					style={styles.toggle}
 					labelPosition="right"
+					labelStyle={{ color: '#000' }}
+					disabled={this.state.editable}
 					onToggle={(event, isInputChecked) =>
 						this.handleTimeDisabledToggle(isInputChecked)
 					}
@@ -296,6 +366,8 @@ export default class AddEventDialog extends React.Component {
 					label="例行巡檢"
 					style={styles.toggle}
 					labelPosition="right"
+					labelStyle={{ color: '#000' }}
+					disabled={this.state.editable}
 					onToggle={(event, isInputChecked) =>
 						this.handleIsRoutineToggle(isInputChecked)
 					}
@@ -304,22 +376,41 @@ export default class AddEventDialog extends React.Component {
 					ref="startTime"
 					style={styles.timePicker}
 					hintText="選擇開始時間"
+					value={this.state.startTime}
 					minutesStep={10}
+					inputStyle={{ color: '#000' }}
+					disabled={this.state.editable || this.state.timeDisabled}
+					okLabel="確定"
+					cancelLabel="取消"
 					onChange={(undefine, time) => this.handleStartTime(time)}
 					errorText={this.state.errorTextStart}
-					disabled={this.state.timeDisabled}
 				/>
 				<TimePicker
 					ref="endTime"
 					style={styles.timePicker}
 					hintText="選擇結束時間"
+					value={this.state.endTime}
 					minutesStep={10}
+					inputStyle={{ color: '#000' }}
+					disabled={this.state.editable || this.state.timeDisabled}
+					okLabel="確定"
+					cancelLabel="取消"
 					onChange={(undefine, time) => this.handleEndTime(time)}
 					errorText={this.state.errorTextEnd}
-					disabled={this.state.timeDisabled}
 				/>
-				<EmployeeSelectField employees={this.getEmployees} />
-				<TextField ref="note" hintText="備註" fullWidth={true} />
+				<EmployeeSelectField
+					inputStyle={{ color: '#000' }}
+					disabled={this.state.editable}
+					employees={this.getEmployees}
+				/>
+				<TextField
+					ref="note"
+					hintText="備註"
+					inputStyle={{ color: '#000' }}
+					disabled={this.state.editable}
+					defaultValue={this.state.note}
+					fullWidth={true}
+				/>
 			</Dialog>
 		);
 	}

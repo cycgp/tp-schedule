@@ -4,7 +4,7 @@ import moment from 'moment';
 import styled from 'styled-components';
 import './Calendar.css';
 import AddEventDialog from './AddEventDialog';
-import events from '../event';
+import UpdateEventDialog from './UpdateEventDialog';
 
 const StyledDiv = styled.div`
 	height: 800px;
@@ -60,7 +60,18 @@ class Calendar extends Component {
 			addEventDialog: false,
 			addEventYear: 0,
 			addEventMonth: 0,
-			addEventDate: 0
+			addEventDate: 0,
+			updateEventDialog: false,
+			updateEventYear: 0,
+			updateEventMonth: 0,
+			updateEventID: 0,
+			updateEventStart: new Date(),
+			updateEventEnd: new Date(),
+			updateEventTitle: '',
+			updateEventLocation: '',
+			updateEventNote: '',
+			updateEventAllDay: '',
+			updateEventIsRoutine: 0
 		};
 	}
 
@@ -116,7 +127,25 @@ class Calendar extends Component {
 			});
 	};
 
-	close = value => {
+	handleSelectEvent = event => {
+		var dateSplit = event.date.split('-');
+		this.setState({
+			updateEventDialog: true,
+			updateEventYear: dateSplit[0],
+			updateEventMonth: dateSplit[1] - 1,
+			updateEventDate: dateSplit[2],
+			updateEventID: event.id,
+			updateEventStart: event.start,
+			updateEventEnd: event.end,
+			updateEventTitle: event.title,
+			updateEventLocation: event.location,
+			updateEventNote: event.note,
+			updateEventAllDay: event.allDay,
+			updateEventIsRoutine: event.isRoutine
+		});
+	};
+
+	addEventDialogClose = value => {
 		if (value) {
 			this.setState({
 				addEventDialog: false
@@ -125,6 +154,19 @@ class Calendar extends Component {
 		} else {
 			this.setState({
 				addEventDialog: false
+			});
+		}
+	};
+
+	updateEventDialogClose = value => {
+		if (value) {
+			this.setState({
+				updateEventDialog: false
+			});
+			this.handleNavigate(value);
+		} else {
+			this.setState({
+				updateEventDialog: false
 			});
 		}
 	};
@@ -143,15 +185,30 @@ class Calendar extends Component {
 					scrollToTime={new Date(1970, 1, 1, 6)}
 					defaultDate={new Date()}
 					onNavigate={date => this.handleNavigate(date)}
-					onSelectEvent={event => alert(event.id)}
+					onSelectEvent={event => this.handleSelectEvent(event)}
 					onSelectSlot={slotInfo => this.handleOnSelectSlot(slotInfo)}
 				/>
 				<AddEventDialog
-					close={this.close}
+					close={this.addEventDialogClose}
 					open={this.state.addEventDialog}
 					year={this.state.addEventYear}
 					month={this.state.addEventMonth}
 					date={this.state.addEventDate}
+				/>
+				<UpdateEventDialog
+					close={this.updateEventDialogClose}
+					open={this.state.updateEventDialog}
+					year={this.state.updateEventYear}
+					month={this.state.updateEventMonth}
+					date={this.state.updateEventDate}
+					id={this.state.updateEventID}
+					start={this.state.updateEventStart}
+					end={this.state.updateEventEnd}
+					title={this.state.updateEventTitle}
+					location={this.state.updateEventLocation}
+					note={this.state.updateEventNote}
+					allDay={this.state.updateEventAllDay}
+					isRoutine={this.state.updateEventIsRoutine}
 				/>
 			</StyledDiv>
 		);
